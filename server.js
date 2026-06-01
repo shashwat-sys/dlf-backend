@@ -1,6 +1,6 @@
 require('dotenv').config();
 const express  = require('express');
-const { MongoClient } = require('mongodb');
+const { MongoClient, ObjectId } = require('mongodb');
 const jwt      = require('jsonwebtoken');
 const XLSX     = require('xlsx');
 const PDFDoc   = require('pdfkit');
@@ -9,20 +9,20 @@ const path     = require('path');
 
 const app = express();
 
-// ── CORS ─────────────────────────────────────────────────────────────────────
+// ââ CORS âââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââ
 const allowedOrigins = process.env.ALLOWED_ORIGINS
   ? process.env.ALLOWED_ORIGINS.split(',').map(s => s.trim())
   : null;
 
 app.use(cors({
   origin: allowedOrigins || '*',
-  methods: ['GET', 'POST', 'OPTIONS'],
+  methods: ['GET', 'POST', 'DELETE', 'OPTIONS'],
   allowedHeaders: ['Content-Type', 'Authorization']
 }));
 app.use(express.json({ limit: '5mb' }));
 app.use(express.static(path.join(__dirname, 'public')));
 
-// ── MongoDB ───────────────────────────────────────────────────────────────────
+// ââ MongoDB âââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââ
 let _db;
 async function getDB() {
   if (!_db) {
@@ -33,7 +33,7 @@ async function getDB() {
   return _db;
 }
 
-// ── Auth middleware ───────────────────────────────────────────────────────────
+// ââ Auth middleware âââââââââââââââââââââââââââââââââââââââââââââââââââââââââââ
 const JWT_SECRET = process.env.JWT_SECRET || 'dlf-dev-secret-change-in-production';
 
 function requireAdmin(req, res, next) {
@@ -43,84 +43,124 @@ function requireAdmin(req, res, next) {
     req.user = jwt.verify(auth.slice(7), JWT_SECRET);
     next();
   } catch {
-    res.status(401).json({ error: 'Token invalid or expired — please log in again' });
+    res.status(401).json({ error: 'Token invalid or expired â please log in again' });
   }
 }
 
-// ── PUBLIC API ────────────────────────────────────────────────────────────────
-// Both the self-assessment form (POST) and the assessor dashboard (GET ?code=)
-// point to the same BACKEND constant, which should be set to:
-//   https://YOUR-DEPLOYED-URL/api/dlf
-
+// ââ PUBLIC: Submit form âââââââââââââââââââââââââââââââââââââââââââââââââââââââ
+// Accepts {data} (new, no-code flow) or {code, data} (legacy compat)
 app.post('/api/dlf', async (req, res) => {
   try {
     const { code, data } = req.body;
-    if (!code || !data) return res.status(400).json({ success: false, error: 'Missing code or data' });
+    if (!data) return res.status(400).json({ success: false, error: 'Missing data' });
 
     const db = await getDB();
-    await db.collection('submissions').replaceOne(
-      { code },
-      {
-        code,
+
+    if (code) {
+      // Legacy: upsert by code
+      await db.collection('submissions').replaceOne(
+        { code },
+        { code, data, fellow: data.who||'', role: data.role||'', district: data.dist||'',
+          period: data.period||'', timestamp: new Date() },
+        { upsert: true }
+      );
+      return res.json({ success: true, code });
+    } else {
+      // New flow: just insert, no code needed
+      const result = await db.collection('submissions').insertOne({
         data,
-        fellow:    data.who   || '',
-        role:      data.role  || '',
-        district:  data.dist  || '',
+        fellow:    data.who    || '',
+        role:      data.role   || '',
+        district:  data.dist   || '',
         period:    data.period || '',
         timestamp: new Date()
-      },
-      { upsert: true }
-    );
-
-    res.json({ success: true, code });
+      });
+      return res.json({ success: true, id: result.insertedId.toString() });
+    }
   } catch (e) {
     console.error('POST /api/dlf', e);
     res.status(500).json({ success: false, error: e.message });
   }
 });
 
+// ââ PUBLIC: Fetch by code (legacy) ââââââââââââââââââââââââââââââââââââââââââââ
 app.get('/api/dlf', async (req, res) => {
   try {
     const { code } = req.query;
     if (!code) return res.status(400).json({ success: false, error: 'Missing code param' });
-
     const db = await getDB();
     const doc = await db.collection('submissions').findOne({ code });
     if (!doc) return res.json({ success: false, error: 'Code not found' });
-
     res.json({ success: true, data: doc.data });
   } catch (e) {
     res.status(500).json({ success: false, error: e.message });
   }
 });
 
-// ── ADMIN AUTH ────────────────────────────────────────────────────────────────
+// ââ ADMIN AUTH ââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââ
 app.post('/api/admin/login', (req, res) => {
   const { username, password } = req.body || {};
   const ok =
     username === (process.env.ADMIN_USERNAME || 'admin') &&
     password === (process.env.ADMIN_PASSWORD || 'janmanindia');
   if (!ok) return res.status(401).json({ error: 'Invalid credentials' });
-
   const token = jwt.sign({ username, role: 'admin' }, JWT_SECRET, { expiresIn: '8h' });
   res.json({ token, expiresIn: 28800 });
 });
 
-// ── ADMIN DATA (all protected) ────────────────────────────────────────────────
+// ââ ADMIN: All entries ââââââââââââââââââââââââââââââââââââââââââââââââââââââââ
 app.get('/api/admin/entries', requireAdmin, async (req, res) => {
   try {
     const db = await getDB();
     const entries = await db.collection('submissions')
-      .find({}, { projection: { _id: 0 } })
+      .find({})
       .sort({ timestamp: -1 })
       .toArray();
-    res.json({ success: true, count: entries.length, entries });
+
+    // Convert ObjectId to string for frontend
+    const out = entries.map(e => ({
+      ...e,
+      _id: e._id.toString()
+    }));
+
+    res.json({ success: true, count: out.length, entries: out });
   } catch (e) {
     res.status(500).json({ success: false, error: e.message });
   }
 });
 
-// ── EXCEL EXPORT ──────────────────────────────────────────────────────────────
+// ââ ADMIN: Delete entry âââââââââââââââââââââââââââââââââââââââââââââââââââââââ
+app.delete('/api/admin/entries/:id', requireAdmin, async (req, res) => {
+  try {
+    const { id } = req.params;
+    if (!ObjectId.isValid(id)) return res.status(400).json({ error: 'Invalid ID' });
+    const db = await getDB();
+    const result = await db.collection('submissions').deleteOne({ _id: new ObjectId(id) });
+    if (result.deletedCount === 0) return res.status(404).json({ error: 'Entry not found' });
+    res.json({ success: true });
+  } catch (e) {
+    res.status(500).json({ success: false, error: e.message });
+  }
+});
+
+// ââ EXCEL EXPORT ââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââ
+const SCORE_LABELS = {
+  lac: 'Legal Aid Camps',
+  train: 'Trainings',
+  ff: 'Fact-Finding',
+  media: 'Media Screenings',
+  pil: 'PIL',
+  cases: 'Cases'
+};
+
+const DIM_LABELS = {
+  exp: 'Experience',
+  chal: 'Challenges & How Overcome',
+  learn: 'Key Learnings',
+  impact: 'Notable Impact',
+  team: 'Teamwork & Conduct'
+};
+
 app.get('/api/admin/export/excel', requireAdmin, async (req, res) => {
   try {
     const db = await getDB();
@@ -135,8 +175,7 @@ app.get('/api/admin/export/excel', requireAdmin, async (req, res) => {
         : '';
 
       const row = {
-        'Code':        e.code || '',
-        'Timestamp':   e.timestamp ? new Date(e.timestamp).toLocaleString('en-IN') : '',
+        'Submitted':   e.timestamp ? new Date(e.timestamp).toLocaleString('en-IN') : '',
         'Fellow':      d.who    || '',
         'Role':        d.role   || '',
         'District':    d.dist   || '',
@@ -144,31 +183,36 @@ app.get('/api/admin/export/excel', requireAdmin, async (req, res) => {
         'Avg Score':   avg,
       };
 
-      // Individual scores
-      Object.entries(scores).forEach(([k, v]) => { row[`Score · ${k}`] = v; });
+      // Individual scores with proper labels
+      Object.entries(scores).forEach(([k, v]) => {
+        row[`Score Â· ${SCORE_LABELS[k] || k}`] = v;
+      });
 
-      // Section C fields
-      const cMap = {
-        report:   'Reporting bottleneck',
-        strategy: 'Case strategy',
-        media:    'Media screenings — outcomes',
-        neto:     'Networking — organisations',
-        netg:     'Networking — officials/govt',
-        comm:     'Community work',
-        sugg:     'Suggestions',
-      };
-      Object.entries(cMap).forEach(([k, label]) => { if (d[k]) row[label] = d[k]; });
+      // Section B reflections
+      Object.entries(d.dims || {}).forEach(([k, v]) => {
+        if (v) row[`Reflection Â· ${DIM_LABELS[k] || k}`] = v;
+      });
 
-      // Qualitative dims
-      Object.entries(d.dims || {}).forEach(([k, v]) => { if (v) row[`Reflection · ${k}`] = v; });
+      // Section C
+      if (d.report)    row['Reporting bottleneck']       = d.report;
+      if (d.strategy)  row['Case strategy']              = d.strategy;
+      if (d.media)     row['Media screenings â outcomes']= d.media;
+      if (d.neto)      row['Networking â organisations'] = d.neto;
+      if (d.netg)      row['Networking â officials/govt']= d.netg;
+      if (d.comm)      row['Community work']             = d.comm;
+      if (d.wa)        row['WhatsApp active']            = d.wa;
+      if (d.times)     row['Times strategised']          = d.times;
 
       // Financials
-      if (d.adv)   row['Advance (₹)']   = d.adv;
-      if (d.claim) row['Claimed (₹)']   = d.claim;
+      if (d.adv)   row['Advance (â¹)']   = d.adv;
+      if (d.claim) row['Claimed (â¹)']   = d.claim;
       if (d.pend)  row['Bills pending'] = d.pend;
 
       // Stakeholders
       if (Array.isArray(d.stake) && d.stake.length) row['Stakeholders'] = d.stake.join(', ');
+
+      // Suggestions
+      if (d.sugg) row['Suggestions'] = d.sugg;
 
       return row;
     });
@@ -196,7 +240,7 @@ app.get('/api/admin/export/excel', requireAdmin, async (req, res) => {
   }
 });
 
-// ── PDF EXPORT ────────────────────────────────────────────────────────────────
+// ââ PDF EXPORT ââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââ
 app.get('/api/admin/export/pdf', requireAdmin, async (req, res) => {
   try {
     const db = await getDB();
@@ -208,61 +252,54 @@ app.get('/api/admin/export/pdf', requireAdmin, async (req, res) => {
     const doc = new PDFDoc({ margin: 50, size: 'A4' });
     doc.pipe(res);
 
-    // ── Cover page ──
+    // Cover page
     doc.fontSize(22).font('Helvetica-Bold').fillColor('#1a5c2e')
        .text('District Legal Fellowship', { align: 'center' });
     doc.fontSize(15).font('Helvetica').fillColor('#333')
        .text('Self-Assessment Report 2026', { align: 'center' });
-    doc.fontSize(11).text("Jan Nyaya Abhiyan · Janman People's Foundation", { align: 'center' });
+    doc.fontSize(11).text("Jan Nyaya Abhiyan Â· Janman People's Foundation", { align: 'center' });
     doc.moveDown(0.5);
     doc.fontSize(10).fillColor('#666')
-       .text(`Generated: ${new Date().toLocaleString('en-IN')}  ·  Total entries: ${entries.length}`, { align: 'center' });
+       .text(`Generated: ${new Date().toLocaleString('en-IN')}  Â·  Total entries: ${entries.length}`, { align: 'center' });
 
-    // ── Entries ──
     entries.forEach((e, idx) => {
       doc.addPage();
       const d = e.data || {};
-      const scores  = d.scores  || {};
-      const dims    = d.dims    || {};
+      const scores = d.scores || {};
+      const dims   = d.dims   || {};
 
       // Header
       doc.fontSize(16).font('Helvetica-Bold').fillColor('#1a5c2e')
          .text(`${idx + 1}. ${d.who || 'Unknown Fellow'}`);
       doc.fontSize(10).font('Helvetica').fillColor('#444')
-         .text(`Code: ${e.code}  ·  Role: ${d.role || '—'}  ·  District: ${d.dist || '—'}  ·  Period: ${d.period || '—'}`);
+         .text(`Role: ${d.role || 'â'}  Â·  District: ${d.dist || 'â'}  Â·  Period: ${d.period || 'â'}`);
       doc.text(`Submitted: ${e.timestamp ? new Date(e.timestamp).toLocaleString('en-IN') : 'Unknown'}`);
       doc.moveDown();
 
-      // Section A — Scores
+      // Section A â Scores
       const scoreEntries = Object.entries(scores);
       if (scoreEntries.length) {
-        doc.fontSize(12).font('Helvetica-Bold').fillColor('#1a5c2e').text('Section A — Scores');
+        doc.fontSize(12).font('Helvetica-Bold').fillColor('#1a5c2e').text('Section A â Scores');
         doc.fontSize(10).font('Helvetica').fillColor('#333');
         scoreEntries.forEach(([k, v]) => {
           const n = Number(v);
-          const bar = '█'.repeat(n) + '░'.repeat(10 - n);
-          doc.text(`  ${String(k).padEnd(24)} ${String(v).padStart(2)}/10  ${bar}`);
+          const label = SCORE_LABELS[k] || k;
+          const bar = 'â'.repeat(n) + 'â'.repeat(10 - n);
+          doc.text(`  ${label.padEnd(22)} ${String(v).padStart(2)}/10  ${bar}`);
         });
         const avg = (scoreEntries.reduce((a, [, v]) => a + Number(v), 0) / scoreEntries.length).toFixed(1);
-        doc.font('Helvetica-Bold').text(`  ${'Average'.padEnd(24)} ${avg}/10`);
+        doc.font('Helvetica-Bold').text(`  ${'Average'.padEnd(22)} ${avg}/10`);
         doc.moveDown();
       }
 
-      // Section B — Reflections
-      const dimLabels = {
-        experience: 'Experience',
-        challenges: 'Challenges & How Overcome',
-        learnings:  'Key Learnings',
-        impact:     'Notable Impact',
-        teamwork:   'Teamwork & Conduct'
-      };
+      // Section B â Reflections
       const hasDims = Object.values(dims).some(Boolean);
       if (hasDims) {
-        doc.fontSize(12).font('Helvetica-Bold').fillColor('#1a5c2e').text('Section B — Reflections');
+        doc.fontSize(12).font('Helvetica-Bold').fillColor('#1a5c2e').text('Section B â Reflections');
         Object.entries(dims).forEach(([k, v]) => {
           if (!v) return;
           doc.fontSize(10).font('Helvetica-Bold').fillColor('#333')
-             .text(`  ${dimLabels[k] || k}:`);
+             .text(`  ${DIM_LABELS[k] || k}:`);
           doc.fontSize(9).font('Helvetica').fillColor('#444')
              .text(`  ${v}`, { indent: 15 });
           doc.moveDown(0.4);
@@ -270,18 +307,18 @@ app.get('/api/admin/export/pdf', requireAdmin, async (req, res) => {
         doc.moveDown(0.5);
       }
 
-      // Section C — Working the fellowship
+      // Section C â Fellowship work
       const cFields = [
         ['report',   'Reporting bottleneck'],
         ['strategy', 'Case strategy'],
-        ['media',    'Media screenings — outcomes'],
-        ['neto',     'Networking — organisations'],
-        ['netg',     'Networking — officials/govt'],
+        ['media',    'Media screenings â outcomes'],
+        ['neto',     'Networking â organisations'],
+        ['netg',     'Networking â officials/govt'],
         ['comm',     'Community work'],
       ];
       const hasCFields = cFields.some(([k]) => d[k]);
       if (hasCFields) {
-        doc.fontSize(12).font('Helvetica-Bold').fillColor('#1a5c2e').text('Section C — Working the Fellowship');
+        doc.fontSize(12).font('Helvetica-Bold').fillColor('#1a5c2e').text('Section C â Working the Fellowship');
         cFields.forEach(([k, label]) => {
           if (!d[k]) return;
           doc.fontSize(10).font('Helvetica-Bold').fillColor('#333').text(`  ${label}:`);
@@ -291,23 +328,21 @@ app.get('/api/admin/export/pdf', requireAdmin, async (req, res) => {
         doc.moveDown(0.5);
       }
 
-      // Section D — Expenditure
+      // Section D â Expenditure
       if (d.adv || d.claim || d.pend) {
-        doc.fontSize(12).font('Helvetica-Bold').fillColor('#1a5c2e').text('Section D — Expenditure');
+        doc.fontSize(12).font('Helvetica-Bold').fillColor('#1a5c2e').text('Section D â Expenditure');
         doc.fontSize(10).font('Helvetica').fillColor('#333');
-        if (d.adv)   doc.text(`  Advance taken: ₹${d.adv}`);
-        if (d.claim) doc.text(`  Total claimed: ₹${d.claim}`);
+        if (d.adv)   doc.text(`  Advance taken: â¹${d.adv}`);
+        if (d.claim) doc.text(`  Total claimed: â¹${d.claim}`);
         if (d.pend)  doc.text(`  Bills pending: ${d.pend}`);
         doc.moveDown(0.5);
       }
 
-      // Suggestions
       if (d.sugg) {
         doc.fontSize(12).font('Helvetica-Bold').fillColor('#1a5c2e').text('Suggestions');
         doc.fontSize(9).font('Helvetica').fillColor('#444').text(`  ${d.sugg}`, { indent: 15 });
       }
 
-      // Stakeholders
       if (Array.isArray(d.stake) && d.stake.length) {
         doc.moveDown(0.5);
         doc.fontSize(10).font('Helvetica-Bold').fillColor('#333').text('Stakeholders engaged:');
@@ -321,15 +356,15 @@ app.get('/api/admin/export/pdf', requireAdmin, async (req, res) => {
   }
 });
 
-// ── ADMIN PAGE ────────────────────────────────────────────────────────────────
+// ââ ADMIN PAGE ââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââ
 app.get('/admin', (req, res) => {
   res.sendFile(path.join(__dirname, 'public', 'admin.html'));
 });
 
 // Health check
-app.get('/', (req, res) => res.json({ status: 'ok', service: 'DLF API', version: '2.0' }));
+app.get('/', (req, res) => res.json({ status: 'ok', service: 'DLF API', version: '3.0' }));
 
-// ── START ─────────────────────────────────────────────────────────────────────
+// ââ START âââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââ
 const PORT = process.env.PORT || 3000;
-app.listen(PORT, () => console.log(`DLF API running → http://localhost:${PORT}`));
-module.exports = app; // for Vercel
+app.listen(PORT, () => console.log(`DLF API running â http://localhost:${PORT}`));
+module.exports = app;
