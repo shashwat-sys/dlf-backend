@@ -2,324 +2,608 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<title>DLF Admin — Jan Nyaya Abhiyan</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>DLF Admin â Jan Nyaya Abhiyan</title>
 <style>
-:root{
-  --green:#1a5c2e;--green2:#2d8653;--beige:#f5f0e8;--border:#d6cfc0;
-  --text:#1a1a1a;--muted:#666;--red:#c0392b;--amber:#e67e22;
-  --card:#fff;--shadow:0 2px 12px rgba(0,0,0,.1);
-}
-*{box-sizing:border-box;margin:0;padding:0}
-body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:var(--beige);color:var(--text);min-height:100vh}
+  :root {
+    --green: #1a5c2e;
+    --green-light: #e8f5ed;
+    --green-mid: #2d8a4e;
+    --red: #c0392b;
+    --red-light: #fdecea;
+    --yellow: #f39c12;
+    --gray: #6c757d;
+    --border: #dee2e6;
+    --bg: #f8f9fa;
+    --white: #ffffff;
+    --text: #212529;
+    --text-muted: #6c757d;
+    --shadow: 0 2px 8px rgba(0,0,0,.08);
+    --radius: 8px;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; }
 
-/* ── Login ── */
-#loginPage{display:flex;align-items:center;justify-content:center;min-height:100vh;background:var(--beige)}
-.login-card{background:var(--card);border-radius:16px;box-shadow:var(--shadow);padding:48px 40px;width:360px;max-width:95vw}
-.login-card .org{font-size:12px;color:var(--muted);text-align:center;margin-bottom:8px;text-transform:uppercase;letter-spacing:.06em}
-.login-card h1{font-size:22px;color:var(--green);text-align:center;margin-bottom:4px}
-.login-card .sub{font-size:13px;color:var(--muted);text-align:center;margin-bottom:32px}
-.field label{font-size:13px;font-weight:600;color:var(--text);display:block;margin-bottom:6px}
-.field input{width:100%;padding:10px 14px;border:1.5px solid var(--border);border-radius:8px;font-size:15px;outline:none;transition:.15s}
-.field input:focus{border-color:var(--green)}
-.field{margin-bottom:18px}
-.btn{display:block;width:100%;padding:12px;background:var(--green);color:#fff;border:none;border-radius:8px;font-size:15px;font-weight:600;cursor:pointer;transition:.15s}
-.btn:hover{background:var(--green2)}
-.login-error{color:var(--red);font-size:13px;text-align:center;margin-top:12px;display:none}
+  #loginScreen { display: flex; align-items: center; justify-content: center; min-height: 100vh; padding: 20px; }
+  .login-card { background: var(--white); border-radius: 12px; box-shadow: var(--shadow); padding: 40px; width: 100%; max-width: 380px; text-align: center; }
+  .login-card .logo { font-size: 28px; font-weight: 700; color: var(--green); margin-bottom: 4px; }
+  .login-card .sub { color: var(--text-muted); font-size: 13px; margin-bottom: 28px; }
+  .form-group { text-align: left; margin-bottom: 16px; }
+  .form-group label { display: block; font-size: 13px; font-weight: 600; color: var(--gray); margin-bottom: 6px; letter-spacing: .4px; }
+  .form-group input { width: 100%; padding: 10px 14px; border: 1.5px solid var(--border); border-radius: 6px; font-size: 14px; transition: border-color .2s; }
+  .form-group input:focus { outline: none; border-color: var(--green); }
+  .btn-primary { width: 100%; padding: 12px; background: var(--green); color: #fff; border: none; border-radius: 6px; font-size: 15px; font-weight: 600; cursor: pointer; transition: background .2s; margin-top: 8px; }
+  .btn-primary:hover { background: var(--green-mid); }
+  .login-error { color: var(--red); font-size: 13px; margin-top: 12px; display: none; }
 
-/* ── Dashboard ── */
-#dashPage{display:none;min-height:100vh}
-header{background:var(--green);color:#fff;padding:0 24px;display:flex;align-items:center;height:56px;position:sticky;top:0;z-index:100}
-header .logo{font-weight:700;font-size:17px}
-header .sub-h{font-size:13px;opacity:.75;margin-left:8px}
-header nav{margin-left:auto;display:flex;gap:12px;align-items:center}
-header button{background:rgba(255,255,255,.15);color:#fff;border:none;padding:7px 14px;border-radius:6px;font-size:13px;cursor:pointer;transition:.15s}
-header button:hover{background:rgba(255,255,255,.25)}
-header .btn-export{background:rgba(255,255,255,.2)}
-.main{padding:24px;max-width:1400px;margin:0 auto}
+  #app { display: none; }
 
-/* Stats */
-.stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:16px;margin-bottom:24px}
-.stat-card{background:var(--card);border-radius:12px;padding:20px;box-shadow:var(--shadow)}
-.stat-card .val{font-size:32px;font-weight:700;color:var(--green)}
-.stat-card .lbl{font-size:13px;color:var(--muted);margin-top:4px}
+  .topbar { background: var(--green); color: #fff; padding: 0 24px; display: flex; align-items: center; justify-content: space-between; height: 56px; position: sticky; top: 0; z-index: 100; box-shadow: 0 2px 6px rgba(0,0,0,.2); }
+  .topbar-brand { font-weight: 700; font-size: 16px; letter-spacing: .3px; }
+  .topbar-brand span { opacity: .7; font-weight: 400; font-size: 13px; margin-left: 8px; }
+  .topbar-actions { display: flex; gap: 10px; align-items: center; }
+  .btn-outline-white { padding: 7px 16px; background: transparent; color: #fff; border: 1.5px solid rgba(255,255,255,.5); border-radius: 6px; font-size: 13px; font-weight: 600; cursor: pointer; transition: all .2s; }
+  .btn-outline-white:hover { background: rgba(255,255,255,.15); border-color: #fff; }
+  .btn-white { padding: 7px 16px; background: #fff; color: var(--green); border: none; border-radius: 6px; font-size: 13px; font-weight: 600; cursor: pointer; }
+  .btn-white:hover { opacity: .9; }
 
-/* Controls */
-.controls{display:flex;gap:12px;margin-bottom:16px;flex-wrap:wrap;align-items:center}
-.search-box{flex:1;min-width:220px;padding:9px 14px;border:1.5px solid var(--border);border-radius:8px;font-size:14px;outline:none}
-.search-box:focus{border-color:var(--green)}
-.export-btns{display:flex;gap:8px}
-.btn-xl{padding:9px 18px;border:none;border-radius:8px;font-size:13px;font-weight:600;cursor:pointer;transition:.15s}
-.btn-excel{background:#217346;color:#fff}.btn-excel:hover{background:#1a5c38}
-.btn-pdf{background:#c0392b;color:#fff}.btn-pdf:hover{background:#a93226}
+  .main { padding: 24px; max-width: 1400px; margin: 0 auto; }
 
-/* Table */
-.table-wrap{background:var(--card);border-radius:12px;box-shadow:var(--shadow);overflow:hidden}
-table{width:100%;border-collapse:collapse;font-size:14px}
-thead{background:var(--green);color:#fff}
-th{padding:12px 14px;text-align:left;font-weight:600;font-size:13px;white-space:nowrap}
-td{padding:11px 14px;border-bottom:1px solid var(--border);vertical-align:middle}
-tr:last-child td{border-bottom:none}
-tr:hover td{background:#f9f6f0}
-.code-badge{font-family:monospace;background:#e8f5e9;color:var(--green);padding:3px 8px;border-radius:5px;font-size:13px;font-weight:700}
-.score-badge{font-weight:700;padding:3px 10px;border-radius:20px;font-size:13px}
-.score-hi{background:#d4edda;color:#155724}
-.score-mid{background:#fff3cd;color:#856404}
-.score-lo{background:#f8d7da;color:#721c24}
-.btn-view{padding:5px 14px;background:var(--green);color:#fff;border:none;border-radius:6px;font-size:12px;cursor:pointer;font-weight:600;transition:.15s}
-.btn-view:hover{background:var(--green2)}
-.empty-row td{text-align:center;padding:48px;color:var(--muted)}
+  .stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 16px; margin-bottom: 24px; }
+  .stat-card { background: var(--white); border-radius: var(--radius); padding: 20px; box-shadow: var(--shadow); border-left: 4px solid var(--green); }
+  .stat-card.yellow { border-color: var(--yellow); }
+  .stat-card .stat-val { font-size: 32px; font-weight: 700; color: var(--green); line-height: 1; }
+  .stat-card.yellow .stat-val { color: var(--yellow); }
+  .stat-card .stat-label { font-size: 12px; color: var(--text-muted); margin-top: 6px; font-weight: 500; text-transform: uppercase; letter-spacing: .5px; }
 
-/* ── Modal ── */
-dialog{padding:0;border:none;border-radius:16px;box-shadow:0 8px 40px rgba(0,0,0,.25);max-width:760px;width:95vw;max-height:90vh}
-dialog::backdrop{background:rgba(0,0,0,.5)}
-.modal-header{background:var(--green);color:#fff;padding:20px 24px;display:flex;align-items:flex-start;gap:12px}
-.modal-header .title{font-size:18px;font-weight:700;flex:1}
-.modal-header .meta{font-size:12px;opacity:.8;margin-top:4px}
-.modal-close{background:rgba(255,255,255,.2);border:none;color:#fff;width:32px;height:32px;border-radius:50%;font-size:18px;cursor:pointer;flex-shrink:0}
-.modal-body{padding:24px;overflow-y:auto;max-height:calc(90vh - 100px)}
-.section-title{font-size:14px;font-weight:700;color:var(--green);text-transform:uppercase;letter-spacing:.05em;margin:20px 0 12px;padding-bottom:6px;border-bottom:2px solid var(--green)}
-.section-title:first-child{margin-top:0}
-.score-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px}
-.score-row{display:flex;align-items:center;gap:8px;font-size:13px}
-.score-label{flex:1;color:var(--muted)}
-.score-bar-wrap{flex:2;background:#e8e0d0;border-radius:4px;height:8px;overflow:hidden}
-.score-bar{height:8px;background:var(--green);border-radius:4px;transition:.3s}
-.score-num{width:28px;font-weight:700;font-size:13px;text-align:right}
-.kv-grid{display:grid;grid-template-columns:1fr;gap:10px}
-.kv{background:#faf8f4;border-radius:8px;padding:12px}
-.kv .k{font-size:12px;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:.04em;margin-bottom:4px}
-.kv .v{font-size:14px;color:var(--text);white-space:pre-wrap}
-.chips{display:flex;flex-wrap:wrap;gap:6px;margin-top:4px}
-.chip{background:#e8f5e9;color:var(--green);border-radius:20px;padding:3px 10px;font-size:12px;font-weight:600}
-.fin-row{display:flex;gap:12px;flex-wrap:wrap}
-.fin-box{background:#faf8f4;border-radius:8px;padding:12px 16px;min-width:140px}
-.fin-box .fk{font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.04em}
-.fin-box .fv{font-size:20px;font-weight:700;color:var(--green)}
+  .table-card { background: var(--white); border-radius: var(--radius); box-shadow: var(--shadow); overflow: hidden; }
+  .table-header { padding: 16px 20px; border-bottom: 1px solid var(--border); display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
+  .table-header h2 { font-size: 16px; font-weight: 700; color: var(--text); flex: 1; min-width: 140px; }
+  .search-input { padding: 8px 14px; border: 1.5px solid var(--border); border-radius: 6px; font-size: 13px; width: 220px; transition: border-color .2s; }
+  .search-input:focus { outline: none; border-color: var(--green); }
+  select.filter-select { padding: 8px 14px; border: 1.5px solid var(--border); border-radius: 6px; font-size: 13px; background: #fff; cursor: pointer; }
+  .table-wrap { overflow-x: auto; }
+  table { width: 100%; border-collapse: collapse; font-size: 13px; }
+  thead th { padding: 12px 16px; text-align: left; font-weight: 600; font-size: 11px; text-transform: uppercase; letter-spacing: .5px; color: var(--text-muted); background: var(--bg); border-bottom: 2px solid var(--border); white-space: nowrap; }
+  tbody tr { border-bottom: 1px solid var(--border); transition: background .15s; }
+  tbody tr:last-child { border-bottom: none; }
+  tbody tr:hover { background: var(--green-light); }
+  tbody td { padding: 14px 16px; vertical-align: middle; }
+  .td-name { font-weight: 600; color: var(--text); }
+  .td-role { color: var(--text-muted); font-size: 12px; }
+  .badge { display: inline-block; padding: 3px 10px; border-radius: 20px; font-size: 11px; font-weight: 600; background: var(--green-light); color: var(--green); }
+  .score-pill { display: inline-block; padding: 4px 12px; border-radius: 20px; font-size: 13px; font-weight: 700; background: var(--green-light); color: var(--green); }
+  .score-pill.low { background: #fff3cd; color: #856404; }
+  .score-pill.mid { background: #d1ecf1; color: #0c5460; }
+  .btn-view { padding: 5px 14px; background: var(--green); color: #fff; border: none; border-radius: 5px; font-size: 12px; font-weight: 600; cursor: pointer; transition: background .2s; }
+  .btn-view:hover { background: var(--green-mid); }
+  .btn-del { padding: 5px 14px; background: var(--red-light); color: var(--red); border: 1.5px solid #f5c6cb; border-radius: 5px; font-size: 12px; font-weight: 600; cursor: pointer; transition: all .2s; margin-left: 6px; }
+  .btn-del:hover { background: var(--red); color: #fff; border-color: var(--red); }
+  .empty-state { padding: 60px 20px; text-align: center; color: var(--text-muted); }
+  .empty-state p { font-size: 15px; margin-top: 12px; }
 
-/* loading spinner */
-.spinner{display:inline-block;width:20px;height:20px;border:3px solid rgba(255,255,255,.3);border-top-color:#fff;border-radius:50%;animation:spin .6s linear infinite}
-@keyframes spin{to{transform:rotate(360deg)}}
+  .modal-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,.45); z-index: 1000; padding: 20px; overflow-y: auto; align-items: flex-start; justify-content: center; }
+  .modal-overlay.open { display: flex; }
+  .modal { background: var(--white); border-radius: 12px; max-width: 780px; width: 100%; box-shadow: 0 12px 40px rgba(0,0,0,.2); margin: auto; max-height: calc(100vh - 40px); overflow-y: auto; }
+  .modal-head { display: flex; align-items: flex-start; justify-content: space-between; padding: 24px 28px 16px; border-bottom: 2px solid var(--green-light); position: sticky; top: 0; background: #fff; z-index: 2; }
+  .modal-head-info .name { font-size: 22px; font-weight: 700; color: var(--green); }
+  .modal-head-info .meta { font-size: 13px; color: var(--text-muted); margin-top: 4px; }
+  .modal-close { background: var(--bg); border: none; border-radius: 50%; width: 34px; height: 34px; font-size: 18px; cursor: pointer; color: var(--gray); display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+  .modal-close:hover { background: var(--border); }
+  .modal-body { padding: 24px 28px 32px; }
 
-@media(max-width:600px){
-  .stats{grid-template-columns:1fr 1fr}
-  .score-grid{grid-template-columns:1fr}
-  header .sub-h{display:none}
-  .main{padding:12px}
-}
+  .section { margin-bottom: 28px; }
+  .section-title { font-size: 13px; font-weight: 700; text-transform: uppercase; letter-spacing: .8px; color: var(--green); margin-bottom: 14px; padding-bottom: 8px; border-bottom: 2px solid var(--green-light); }
+
+  .scores-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 12px; }
+  .score-item { background: var(--bg); border-radius: 8px; padding: 14px; }
+  .score-item-label { font-size: 11px; font-weight: 600; color: var(--text-muted); text-transform: uppercase; letter-spacing: .5px; margin-bottom: 8px; }
+  .score-bar-wrap { display: flex; align-items: center; gap: 8px; }
+  .score-bar-bg { flex: 1; height: 8px; background: var(--border); border-radius: 4px; overflow: hidden; }
+  .score-bar-fill { height: 100%; background: var(--green); border-radius: 4px; }
+  .score-bar-fill.low { background: #f39c12; }
+  .score-bar-fill.vlow { background: var(--red); }
+  .score-num { font-size: 14px; font-weight: 700; color: var(--text); min-width: 32px; text-align: right; }
+
+  .avg-row { margin-top: 14px; background: var(--green-light); border-radius: 8px; padding: 12px 16px; display: flex; align-items: center; justify-content: space-between; }
+  .avg-row .avg-label { font-size: 13px; font-weight: 700; color: var(--green); }
+  .avg-row .avg-val { font-size: 20px; font-weight: 700; color: var(--green); }
+
+  .reflection-item { margin-bottom: 16px; }
+  .reflection-label { font-size: 12px; font-weight: 700; color: var(--text-muted); text-transform: uppercase; letter-spacing: .5px; margin-bottom: 5px; }
+  .reflection-text { font-size: 14px; color: var(--text); line-height: 1.6; }
+
+  .field-item { margin-bottom: 14px; }
+  .field-label { font-size: 12px; font-weight: 700; color: var(--text-muted); text-transform: uppercase; letter-spacing: .5px; margin-bottom: 4px; }
+  .field-text { font-size: 14px; color: var(--text); line-height: 1.6; }
+
+  .tags { display: flex; flex-wrap: wrap; gap: 8px; }
+  .tag { padding: 5px 12px; background: var(--green-light); color: var(--green); border-radius: 20px; font-size: 12px; font-weight: 600; }
+
+  .finance-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: 12px; }
+  .finance-item { background: var(--bg); border-radius: 8px; padding: 14px; }
+  .finance-item-label { font-size: 11px; font-weight: 600; color: var(--text-muted); text-transform: uppercase; letter-spacing: .5px; margin-bottom: 6px; }
+  .finance-item-val { font-size: 18px; font-weight: 700; color: var(--text); }
+
+  .confirm-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,.5); z-index: 2000; align-items: center; justify-content: center; padding: 20px; }
+  .confirm-overlay.open { display: flex; }
+  .confirm-box { background: #fff; border-radius: 10px; padding: 28px; max-width: 360px; width: 100%; text-align: center; box-shadow: 0 8px 32px rgba(0,0,0,.2); }
+  .confirm-box.h3 { font-size: 17px; margin-bottom: 10px; }
+  .confirm-box p { font-size: 14px; color: var(--text-muted); margin-bottom: 22px; }
+  .confirm-actions { display: flex; gap: 10px; justify-content: center; }
+  .btn-cancel { padding: 9px 20px; background: var(--bg); border: 1.5px solid var(--border); border-radius: 6px; font-size: 14px; font-weight: 600; cursor: pointer; }
+  .btn-confirm-del { padding: 9px 20px; background: var(--red); color: #fff; border: none; border-radius: 6px; font-size: 14px; font-weight: 600; cursor: pointer; }
+
+  .toast { position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%); background: #333; color: #fff; padding: 10px 20px; border-radius: 8px; font-size: 14px; z-index: 3000; opacity: 0; pointer-events: none; transition: opacity .3s; white-space: nowrap; }
+  .toast.show { opacity: 1; }
+  .toast.green { background: var(--green); }
+  .toast.red { background: var(--red); }
+
+  @media (max-width: 640px) {
+    .main { padding: 16px; }
+    .topbar { padding: 0 16px; }
+    .topbar-brand span { display: none; }
+    .search-input { width: 100%; }
+    .modal-head { padding: 18px 18px 12px; }
+    .modal-body { padding: 16px 18px 24px; }
+    .scores-grid { grid-template-columns: 1fr 1fr; }
+  }
 </style>
 </head>
 <body>
 
-<div id="loginPage">
+<div id="loginScreen">
   <div class="login-card">
-    <div class="org">Jan Nyaya Abhiyan · Janman People's Foundation</div>
-    <h1>DLF Admin</h1>
-    <div class="sub">District Legal Fellowship · Annual Review 2026</div>
-    <form id="loginForm">
-      <div class="field">
-        <label for="uname">Username</label>
-        <input id="uname" type="text" autocomplete="username" placeholder="admin" required>
-      </div>
-      <div class="field">
-        <label for="upass">Password</label>
-        <input id="upass" type="password" autocomplete="current-password" placeholder="••••••••" required>
-      </div>
-      <button type="submit" class="btn" id="loginBtn">Sign in</button>
-      <div class="login-error" id="loginErr">Invalid username or password</div>
-    </form>
+    <div class="logo">DLF Admin</div>
+    <div class="sub">Jan Nyaya Abhiyan &middot; Janman People's Foundation</div>
+    <div class="form-group">
+      <label>USERNAME</label>
+      <input type="text" id="username" placeholder="admin" autocomplete="username">
+    </div>
+    <div class="form-group">
+      <label>PASSWORD</label>
+      <input type="password" id="password" placeholder="&bull;&bull;&bull;&bull;&bull;&bull;&bull;&bull;" autocomplete="current-password">
+    </div>
+    <button class="btn-primary" onclick="login()">Sign In</button>
+    <div class="login-error" id="loginError">Invalid username or password.</div>
   </div>
 </div>
 
-<div id="dashPage">
-  <header>
-    <span class="logo">DLF Admin</span>
-    <span class="sub-h">Jan Nyaya Abhiyan</span>
-    <nav>
-      <button class="btn-export btn-excel" onclick="exportFile('excel')">↓ Excel</button>
-      <button class="btn-export btn-pdf"   onclick="exportFile('pdf')">↓ PDF</button>
-      <button onclick="logout()">Sign out</button>
-    </nav>
-  </header>
+<div id="app">
+  <div class="topbar">
+    <div class="topbar-brand">DLF Admin <span>Jan Nyaya Abhiyan</span></div>
+    <div class="topbar-actions">
+      <button class="btn-outline-white" onclick="downloadExcel()">&#x2B07; Excel</button>
+      <button class="btn-outline-white" onclick="loadEntries()">&#x27F3; Refresh</button>
+      <button class="btn-white" onclick="logout()">Sign Out</button>
+    </div>
+  </div>
+
   <div class="main">
-    <div class="stats" id="statsRow">
-      <div class="stat-card"><div class="val" id="stTotal">—</div><div class="lbl">Total submissions</div></div>
-      <div class="stat-card"><div class="val" id="stFellows">—</div><div class="lbl">Distinct fellows</div></div>
-      <div class="stat-card"><div class="val" id="stDistricts">—</div><div class="lbl">Districts covered</div></div>
-      <div class="stat-card"><div class="val" id="stAvg">—</div><div class="lbl">Avg self-score</div></div>
+    <div class="stats-grid" id="statsGrid">
+      <div class="stat-card">
+        <div class="stat-val" id="statTotal">-</div>
+        <div class="stat-label">Total Submissions</div>
+      </div>
+      <div class="stat-card yellow">
+        <div class="stat-val" id="statThisMonth">-</div>
+        <div class="stat-label">This Month</div>
+      </div>
     </div>
-    <div class="controls">
-      <input class="search-box" id="searchBox" type="search" placeholder="Search by fellow, district, code…" oninput="renderTable()">
-    </div>
-    <div class="table-wrap">
-      <table>
-        <thead><tr><th>Code</th><th>Date</th><th>Fellow</th><th>Role</th><th>District</th><th>Avg Score</th><th></th></tr></thead>
-        <tbody id="tableBody"></tbody>
-      </table>
+
+    <div class="table-card">
+      <div class="table-header">
+        <h2>All Submissions</h2>
+        <input type="text" class="search-input" id="searchInput" placeholder="Search name, district..." oninput="filterTable()">
+        <select class="filter-select" id="districtFilter" onchange="filterTable()">
+          <option value="">All Districts</option>
+        </select>
+      </div>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>#</th>
+              <th>Date</th>
+              <th>Fellow</th>
+              <th>District</th>
+              <th>Period</th>
+              <th>Avg Score</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody id="tableBody">
+            <tr><td colspan="7"><div class="empty-state"><p>Loading...</p></div></td></tr>
+          </tbody>
+        </table>
+      </div>
     </div>
   </div>
 </div>
 
-<dialog id="entryModal">
-  <div class="modal-header">
-    <div style="flex:1">
-      <div class="title" id="mTitle">—</div>
-      <div class="meta" id="mMeta">—</div>
+<div class="modal-overlay" id="detailOverlay" onclick="closeModalIfBg(event)">
+  <div class="modal" id="detailModal">
+    <div class="modal-head">
+      <div class="modal-head-info">
+        <div class="name" id="mName"></div>
+        <div class="meta" id="mMeta"></div>
+      </div>
+      <button class="modal-close" onclick="closeModal()">&#x2715;</button>
     </div>
-    <button class="modal-close" onclick="document.getElementById('entryModal').close()">✕</button>
+    <div class="modal-body" id="modalBody"></div>
   </div>
-  <div class="modal-body" id="mBody"></div>
-</dialog>
+</div>
+
+<div class="confirm-overlay" id="confirmOverlay">
+  <div class="confirm-box">
+    <h3>Delete this submission?</h3>
+    <p id="confirmName">This action cannot be undone.</p>
+    <div class="confirm-actions">
+      <button class="btn-cancel" onclick="closeConfirm()">Cancel</button>
+      <button class="btn-confirm-del" onclick="confirmDelete()">Delete</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
 
 <script>
-const API = window.location.origin;
-let TOKEN = localStorage.getItem('dlf_admin_token') || '';
-let ALL_ENTRIES = [];
+const BACKEND = 'https://dlf-backend.vercel.app';
 
-window.onload = async () => {
-  if (TOKEN) { show('dashPage'); await loadEntries(); }
-  else { show('loginPage'); }
+const SCORE_LABELS = {
+  lac: 'Legal Aid Camps', train: 'Trainings', ff: 'Fact-Finding',
+  media: 'Media Screenings', pil: 'PIL', cases: 'Cases'
+};
+const DIM_LABELS = {
+  exp: 'Experience', chal: 'Challenges & How Overcome',
+  learn: 'Key Learnings', impact: 'Notable Impact', team: 'Teamwork & Conduct'
 };
 
-function show(id) {
-  document.getElementById('loginPage').style.display = id === 'loginPage' ? 'flex' : 'none';
-  document.getElementById('dashPage').style.display  = id === 'dashPage'  ? 'block' : 'none';
-}
+let allEntries = [];
+let deleteId = null;
+let deleteName = '';
 
-document.getElementById('loginForm').onsubmit = async e => {
-  e.preventDefault();
-  const btn = document.getElementById('loginBtn');
-  const err = document.getElementById('loginErr');
-  err.style.display = 'none';
-  btn.innerHTML = '<span class="spinner"><\/span>';
-  btn.disabled = true;
+function getToken() { return sessionStorage.getItem('dlf_token'); }
+
+async function login() {
+  const u = document.getElementById('username').value.trim();
+  const p = document.getElementById('password').value;
+  const errEl = document.getElementById('loginError');
+  errEl.style.display = 'none';
   try {
-    const r = await fetch(API + '/api/admin/login', {
+    const r = await fetch(BACKEND + '/api/admin/login', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ username: document.getElementById('uname').value, password: document.getElementById('upass').value })
+      body: JSON.stringify({ username: u, password: p })
     });
     const j = await r.json();
-    if (!r.ok || !j.token) throw new Error(j.error || 'Login failed');
-    TOKEN = j.token;
-    localStorage.setItem('dlf_admin_token', TOKEN);
-    show('dashPage');
-    await loadEntries();
-  } catch (ex) {
-    err.textContent = ex.message;
-    err.style.display = 'block';
-  } finally {
-    btn.textContent = 'Sign in';
-    btn.disabled = false;
+    if (!r.ok || !j.token) { errEl.style.display = 'block'; return; }
+    sessionStorage.setItem('dlf_token', j.token);
+    document.getElementById('loginScreen').style.display = 'none';
+    document.getElementById('app').style.display = 'block';
+    loadEntries();
+  } catch(e) {
+    errEl.textContent = 'Network error. Try again.';
+    errEl.style.display = 'block';
   }
-};
+}
 
-function logout() { TOKEN = ''; localStorage.removeItem('dlf_admin_token'); show('loginPage'); }
+function logout() {
+  sessionStorage.removeItem('dlf_token');
+  document.getElementById('app').style.display = 'none';
+  document.getElementById('loginScreen').style.display = 'flex';
+  document.getElementById('password').value = '';
+}
+
+window.addEventListener('DOMContentLoaded', function() {
+  if (getToken()) {
+    document.getElementById('loginScreen').style.display = 'none';
+    document.getElementById('app').style.display = 'block';
+    loadEntries();
+  }
+  document.getElementById('password').addEventListener('keydown', function(e) {
+    if (e.key === 'Enter') login();
+  });
+});
 
 async function loadEntries() {
   try {
-    const r = await fetch(API + '/api/admin/entries', { headers: { Authorization: 'Bearer ' + TOKEN } });
+    const r = await fetch(BACKEND + '/api/admin/entries', {
+      headers: { Authorization: 'Bearer ' + getToken() }
+    });
     if (r.status === 401) { logout(); return; }
     const j = await r.json();
-    ALL_ENTRIES = j.entries || [];
-    updateStats();
-    renderTable();
-  } catch (e) {
-    ALL_ENTRIES = [];
-    document.getElementById('tableBody').innerHTML = '<tr class="empty-row"><td colspan="7">⚠ Could not load entries — ' + e.message + '<\/td><\/tr>';
+    allEntries = j.entries || [];
+    renderStats();
+    populateDistrictFilter();
+    filterTable();
+  } catch(e) {
+    showToast('Failed to load entries', 'red');
   }
 }
 
-function updateStats() {
-  const e = ALL_ENTRIES;
-  document.getElementById('stTotal').textContent = e.length;
-  document.getElementById('stFellows').textContent = new Set(e.map(x => x.fellow)).size;
-  document.getElementById('stDistricts').textContent = new Set(e.map(x => x.district)).size;
-  let totalAvg = 0, count = 0;
-  e.forEach(entry => {
-    const scores = Object.values(entry.data?.scores || {}).map(Number);
-    if (scores.length) { totalAvg += scores.reduce((a,b)=>a+b,0)/scores.length; count++; }
+function renderStats() {
+  document.getElementById('statTotal').textContent = allEntries.length;
+  var now = new Date();
+  var thisMonth = allEntries.filter(function(e) {
+    var d = new Date(e.timestamp);
+    return d.getMonth() === now.getMonth() && d.getFullYear() === now.getFullYear();
+  }).length;
+  document.getElementById('statThisMonth').textContent = thisMonth;
+
+  var byDist = {};
+  allEntries.forEach(function(e) {
+    var d = (e.district || (e.data && e.data.dist) || 'Unknown');
+    byDist[d] = (byDist[d] || 0) + 1;
   });
-  document.getElementById('stAvg').textContent = count ? (totalAvg/count).toFixed(1) : '—';
+  var grid = document.getElementById('statsGrid');
+  var old = grid.querySelectorAll('.dist-card');
+  for (var i = 0; i < old.length; i++) old[i].remove();
+  Object.keys(byDist).sort().forEach(function(dist) {
+    var c = document.createElement('div');
+    c.className = 'stat-card dist-card';
+    c.innerHTML = '<div class="stat-val">' + byDist[dist] + '</div><div class="stat-label">' + dist + '</div>';
+    grid.appendChild(c);
+  });
 }
 
-function renderTable() {
-  const q = document.getElementById('searchBox').value.trim().toLowerCase();
-  const filtered = q ? ALL_ENTRIES.filter(e =>
-    (e.fellow||'').toLowerCase().includes(q)||(e.district||'').toLowerCase().includes(q)||
-    (e.code||'').toLowerCase().includes(q)||(e.role||'').toLowerCase().includes(q)) : ALL_ENTRIES;
-  const tbody = document.getElementById('tableBody');
-  if (!filtered.length) { tbody.innerHTML = '<tr class="empty-row"><td colspan="7">No entries found<\/td><\/tr>'; return; }
-  tbody.innerHTML = filtered.map((e, idx) => {
-    const scores = Object.values(e.data?.scores || {}).map(Number);
-    const avg = scores.length ? (scores.reduce((a,b)=>a+b,0)/scores.length).toFixed(1) : '—';
-    const cls = avg === '—' ? '' : Number(avg) >= 8 ? 'score-hi' : Number(avg) >= 5 ? 'score-mid' : 'score-lo';
-    const date = e.timestamp ? new Date(e.timestamp).toLocaleDateString('en-IN',{day:'2-digit',month:'short',year:'numeric'}) : '—';
-    return `<tr><td><span class="code-badge">${esc(e.code)}<\/span><\/td><td>${date}<\/td><td><strong>${esc(e.fellow||'—')}<\/strong><\/td><td>${esc(e.role||'—')}<\/td><td>${esc(e.district||'—')}<\/td><td><span class="score-badge ${cls}">${avg}<\/span><\/td><td><button class="btn-view" onclick="viewEntry(${idx})">View<\/button><\/td><\/tr>`;
+function populateDistrictFilter() {
+  var sel = document.getElementById('districtFilter');
+  var current = sel.value;
+  var dists = [];
+  allEntries.forEach(function(e) {
+    var d = (e.district || (e.data && e.data.dist) || '');
+    if (d && dists.indexOf(d) === -1) dists.push(d);
+  });
+  dists.sort();
+  sel.innerHTML = '<option value="">All Districts</option>';
+  dists.forEach(function(d) {
+    var o = document.createElement('option');
+    o.value = d; o.textContent = d;
+    if (d === current) o.selected = true;
+    sel.appendChild(o);
+  });
+}
+
+function filterTable() {
+  var q = document.getElementById('searchInput').value.toLowerCase();
+  var dist = document.getElementById('districtFilter').value;
+  var filtered = allEntries.filter(function(e) {
+    var d = e.data || {};
+    var name = (d.who || '').toLowerCase();
+    var district = (d.dist || '').toLowerCase();
+    var role = (d.role || '').toLowerCase();
+    var matchQ = !q || name.indexOf(q) !== -1 || district.indexOf(q) !== -1 || role.indexOf(q) !== -1;
+    var matchD = !dist || (d.dist || '') === dist;
+    return matchQ && matchD;
+  });
+  renderTable(filtered);
+}
+
+function avgScore(scores) {
+  if (!scores) return null;
+  var vals = Object.values(scores).map(Number).filter(function(n) { return !isNaN(n); });
+  if (!vals.length) return null;
+  return vals.reduce(function(a,b){return a+b;}, 0) / vals.length;
+}
+
+function scoreClass(avg) {
+  if (avg === null) return '';
+  if (avg >= 7) return '';
+  if (avg >= 4) return 'mid';
+  return 'low';
+}
+
+function renderTable(entries) {
+  var tbody = document.getElementById('tableBody');
+  if (!entries.length) {
+    tbody.innerHTML = '<tr><td colspan="7"><div class="empty-state"><p>No submissions found.</p></div></td></tr>';
+    return;
+  }
+  tbody.innerHTML = entries.map(function(e, i) {
+    var d = e.data || {};
+    var avg = avgScore(d.scores);
+    var avgStr = avg !== null ? avg.toFixed(1) : '-';
+    var sc = scoreClass(avg);
+    var date = e.timestamp ? new Date(e.timestamp).toLocaleDateString('en-IN', { day:'2-digit', month:'short', year:'numeric' }) : '-';
+    var id = e._id;
+    var name = esc(d.who || '-');
+    var role = esc(d.role || '');
+    var distVal = esc(d.dist || '-');
+    var period = esc(d.period || '-');
+    return '<tr>' +
+      '<td style="color:var(--text-muted);font-size:12px">' + (i+1) + '</td>' +
+      '<td style="color:var(--text-muted);font-size:12px;white-space:nowrap">' + date + '</td>' +
+      '<td><div class="td-name">' + name + '</div><div class="td-role">' + role + '</div></td>' +
+      '<td><span class="badge">' + distVal + '</span></td>' +
+      '<td style="font-size:12px;color:var(--text-muted)">' + period + '</td>' +
+      '<td><span class="score-pill ' + sc + '">' + avgStr + '</span></td>' +
+      '<td>' +
+        '<button class="btn-view" onclick="viewEntry(\'' + id + '\')">View</button>' +
+        '<button class="btn-del" onclick="askDelete(\'' + id + '\',\'' + name.replace(/'/g,"\\'") + '\')">Delete</button>' +
+      '</td>' +
+    '</tr>';
   }).join('');
-  tbody._filtered = filtered;
 }
 
-function viewEntry(idx) {
-  const tbody = document.getElementById('tableBody');
-  const filtered = tbody._filtered || ALL_ENTRIES;
-  const e = filtered[idx]; if (!e) return;
-  const d = e.data || {};
-  document.getElementById('mTitle').textContent = d.who || 'Unknown Fellow';
-  document.getElementById('mMeta').textContent = `Code: ${e.code}  ·  ${d.role||''}  ·  ${d.dist||''}  ·  Period: ${d.period||'—'}  ·  ` + (e.timestamp ? new Date(e.timestamp).toLocaleString('en-IN') : '');
-  let html = '';
-  const scores = d.scores || {};
-  const scoreEntries = Object.entries(scores);
+function viewEntry(id) {
+  var e = null;
+  for (var i = 0; i < allEntries.length; i++) { if (allEntries[i]._id === id) { e = allEntries[i]; break; } }
+  if (!e) return;
+  var d = e.data || {};
+  document.getElementById('mName').textContent = d.who || 'Unknown';
+  document.getElementById('mMeta').textContent =
+    (d.role||'-') + ' Â· ' + (d.dist||'-') + ' Â· Period: ' + (d.period||'-') +
+    ' Â· Submitted: ' + (e.timestamp ? new Date(e.timestamp).toLocaleString('en-IN') : '-');
+
+  var html = '';
+
+  // Section A: Scores
+  var scores = d.scores || {};
+  var scoreEntries = Object.entries(scores);
   if (scoreEntries.length) {
-    html += `<div class="section-title">Section A — Self-Scores<\/div><div class="score-grid">`;
-    scoreEntries.forEach(([k, v]) => {
-      const n = Math.min(10, Math.max(0, Number(v)));
-      html += `<div class="score-row"><span class="score-label">${esc(k)}<\/span><div class="score-bar-wrap"><div class="score-bar" style="width:${n*10}%"><\/div><\/div><span class="score-num">${v}<\/span><\/div>`;
+    var avg = avgScore(scores);
+    html += '<div class="section"><div class="section-title">Section A â Scores</div><div class="scores-grid">';
+    scoreEntries.forEach(function(kv) {
+      var k = kv[0], v = kv[1];
+      var n = Number(v);
+      var pct = n * 10;
+      var cls = n >= 7 ? '' : n >= 4 ? 'low' : 'vlow';
+      html += '<div class="score-item">' +
+        '<div class="score-item-label">' + (SCORE_LABELS[k]||k) + '</div>' +
+        '<div class="score-bar-wrap">' +
+          '<div class="score-bar-bg"><div class="score-bar-fill ' + cls + '" style="width:' + pct + '%"></div></div>' +
+          '<div class="score-num">' + n + '<small style="font-weight:400;font-size:10px;color:var(--text-muted)">/10</small></div>' +
+        '</div></div>';
     });
-    const avg = (scoreEntries.reduce((a,[,v])=>a+Number(v),0)/scoreEntries.length).toFixed(1);
-    html += `<\/div><div style="margin-top:10px;font-size:13px;font-weight:600;color:var(--green)">Average: ${avg} / 10<\/div>`;
+    html += '</div>';
+    if (avg !== null) {
+      html += '<div class="avg-row"><div class="avg-label">Overall Average</div><div class="avg-val">' + avg.toFixed(1) + ' / 10</div></div>';
+    }
+    html += '</div>';
   }
-  const dimLabels = {experience:'Experience',challenges:'Challenges & How Overcome',learnings:'Key Learnings',impact:'Notable Impact',teamwork:'Teamwork & Conduct'};
-  const dims = d.dims || {};
-  if (Object.values(dims).some(Boolean)) {
-    html += `<div class="section-title">Section B — Reflections<\/div><div class="kv-grid">`;
-    Object.entries(dims).forEach(([k, v]) => { if (v) html += `<div class="kv"><div class="k">${esc(dimLabels[k]||k)}<\/div><div class="v">${esc(v)}<\/div><\/div>`; });
-    html += `<\/div>`;
+
+  // Section B: Reflections
+  var dims = d.dims || {};
+  var hasDims = Object.values(dims).some(function(v){return !!v;});
+  if (hasDims) {
+    html += '<div class="section"><div class="section-title">Section B â Reflections</div>';
+    Object.entries(dims).forEach(function(kv) {
+      var k = kv[0], v = kv[1];
+      if (!v) return;
+      html += '<div class="reflection-item"><div class="reflection-label">' + (DIM_LABELS[k]||k) + '</div><div class="reflection-text">' + esc(v) + '</div></div>';
+    });
+    html += '</div>';
   }
-  const cFields = [['report','Reporting bottleneck'],['strategy','Case strategy'],['media','Media screenings — outcomes'],['neto','Networking — organisations'],['netg','Networking — officials/govt'],['comm','Community collaboration']];
-  if (cFields.some(([k]) => d[k])) {
-    html += `<div class="section-title">Section C — Working the Fellowship<\/div><div class="kv-grid">`;
-    cFields.forEach(([k, label]) => { if (d[k]) html += `<div class="kv"><div class="k">${esc(label)}<\/div><div class="v">${esc(d[k])}<\/div><\/div>`; });
-    html += `<\/div>`;
+
+  // Section C: Fellowship Work
+  var cFields = [
+    ['report','Reporting Bottleneck'],['strategy','Case Strategy'],
+    ['media','Media Screenings â Outcomes'],['neto','Networking â Organisations'],
+    ['netg','Networking â Officials / Govt'],['comm','Community Work'],
+    ['wa','WhatsApp Active'],['times','Times Strategised (Month)']
+  ];
+  var hasCFields = cFields.some(function(f){return !!d[f[0]];});
+  if (hasCFields) {
+    html += '<div class="section"><div class="section-title">Section C â Working the Fellowship</div>';
+    cFields.forEach(function(f) {
+      if (!d[f[0]]) return;
+      html += '<div class="field-item"><div class="field-label">' + f[1] + '</div><div class="field-text">' + esc(d[f[0]]) + '</div></div>';
+    });
+    html += '</div>';
   }
-  if (Array.isArray(d.stake) && d.stake.length) html += `<div class="section-title">Stakeholders Engaged<\/div><div class="chips">${d.stake.map(s=>`<span class="chip">${esc(s)}<\/span>`).join('')}<\/div>`;
-  if (d.adv || d.claim || d.pend) {
-    html += `<div class="section-title">Section D — Expenditure<\/div><div class="fin-row">`;
-    if (d.adv)   html += `<div class="fin-box"><div class="fk">Advance taken<\/div><div class="fv">₹${esc(d.adv)}<\/div><\/div>`;
-    if (d.claim) html += `<div class="fin-box"><div class="fk">Total claimed<\/div><div class="fv">₹${esc(d.claim)}<\/div><\/div>`;
-    if (d.pend)  html += `<div class="fin-box"><div class="fk">Bills pending?<\/div><div class="fv" style="font-size:16px">${esc(d.pend)}<\/div><\/div>`;
-    html += `<\/div>`;
+
+  // Stakeholders
+  if (Array.isArray(d.stake) && d.stake.length) {
+    html += '<div class="section"><div class="section-title">Stakeholders Engaged</div><div class="tags">';
+    d.stake.forEach(function(s) { html += '<span class="tag">' + esc(s) + '</span>'; });
+    html += '</div></div>';
   }
-  if (d.sugg) html += `<div class="section-title">Suggestions<\/div><div class="kv"><div class="k">What would make the fellowship work better<\/div><div class="v">${esc(d.sugg)}<\/div><\/div>`;
-  document.getElementById('mBody').innerHTML = html;
-  document.getElementById('entryModal').showModal();
+
+  // Section D: Finance & Admin
+  var hasFinance = d.adv || d.claim || d.pend;
+  var hasAdmin = d.assets || d.concern || d.conf;
+  if (hasFinance || hasAdmin) {
+    html += '<div class="section"><div class="section-title">Section D â Administration &amp; Finance</div>';
+    if (hasFinance) {
+      html += '<div class="finance-grid">';
+      if (d.adv)   html += '<div class="finance-item"><div class="finance-item-label">Advance Taken</div><div class="finance-item-val">â¹' + esc(d.adv) + '</div></div>';
+      if (d.claim) html += '<div class="finance-item"><div class="finance-item-label">Total Claimed</div><div class="finance-item-val">â¹' + esc(d.claim) + '</div></div>';
+      if (d.pend)  html += '<div class="finance-item"><div class="finance-item-label">Bills Pending</div><div class="finance-item-val">' + esc(d.pend) + '</div></div>';
+      html += '</div>';
+    }
+    var adminFields = [['assets','Assets Held'],['conf','Confidentiality Confirmed'],['concern','Concern Raised']];
+    adminFields.forEach(function(f) {
+      if (!d[f[0]]) return;
+      html += '<div class="field-item" style="margin-top:12px"><div class="field-label">' + f[1] + '</div><div class="field-text">' + esc(d[f[0]]) + '</div></div>';
+    });
+    html += '</div>';
+  }
+
+  // Suggestions
+  if (d.sugg) {
+    html += '<div class="section"><div class="section-title">Suggestions</div><div class="reflection-text">' + esc(d.sugg) + '</div></div>';
+  }
+
+  document.getElementById('modalBody').innerHTML = html;
+  document.getElementById('detailOverlay').classList.add('open');
+  document.body.style.overflow = 'hidden';
 }
 
-async function exportFile(type) {
+function closeModal() {
+  document.getElementById('detailOverlay').classList.remove('open');
+  document.body.style.overflow = '';
+}
+
+function closeModalIfBg(e) {
+  if (e.target === document.getElementById('detailOverlay')) closeModal();
+}
+
+function askDelete(id, name) {
+  deleteId = id;
+  deleteName = name;
+  document.getElementById('confirmName').textContent = '"' + name + '" will be permanently removed.';
+  document.getElementById('confirmOverlay').classList.add('open');
+}
+
+function closeConfirm() {
+  document.getElementById('confirmOverlay').classList.remove('open');
+  deleteId = null;
+}
+
+async function confirmDelete() {
+  if (!deleteId) return;
+  var id = deleteId;
+  var name = deleteName;
+  closeConfirm();
   try {
-    const r = await fetch(`${API}/api/admin/export/${type}`, { headers: { Authorization: 'Bearer ' + TOKEN } });
+    var r = await fetch(BACKEND + '/api/admin/entries/' + id, {
+      method: 'DELETE',
+      headers: { Authorization: 'Bearer ' + getToken() }
+    });
     if (r.status === 401) { logout(); return; }
-    if (!r.ok) { alert('Export failed: ' + r.status); return; }
-    const blob = await r.blob();
-    const a = document.createElement('a');
-    a.href = URL.createObjectURL(blob);
-    a.download = type === 'excel' ? 'DLF_Submissions.xlsx' : 'DLF_Submissions.pdf';
-    a.click();
-    URL.revokeObjectURL(a.href);
-  } catch (e) { alert('Export error: ' + e.message); }
+    var j = await r.json();
+    if (j.success) {
+      allEntries = allEntries.filter(function(e) { return e._id !== id; });
+      renderStats();
+      filterTable();
+      showToast('Deleted "' + name + '"', 'red');
+    } else {
+      showToast('Delete failed: ' + (j.error||'unknown'), 'red');
+    }
+  } catch(e) {
+    showToast('Network error during delete', 'red');
+  }
 }
 
-function esc(s) { return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
+function downloadExcel() {
+  fetch(BACKEND + '/api/admin/export/excel', {
+    headers: { Authorization: 'Bearer ' + getToken() }
+  }).then(function(r) {
+    if (r.status === 401) { logout(); return null; }
+    return r.blob();
+  }).then(function(blob) {
+    if (!blob) return;
+    var url = URL.createObjectURL(blob);
+    var a = document.createElement('a');
+    a.href = url; a.download = 'DLF_Submissions.xlsx';
+    a.click(); URL.revokeObjectURL(url);
+    showToast('Excel downloaded', 'green');
+  }).catch(function() { showToast('Download failed', 'red'); });
+}
+
+function esc(s) {
+  return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;');
+}
+
+var toastTimer;
+function showToast(msg, type) {
+  var t = document.getElementById('toast');
+  t.textContent = msg;
+  t.className = 'toast' + (type ? ' ' + type : '') + ' show';
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(function() { t.classList.remove('show'); }, 3000);
+}
 </script>
 </body>
 </html>
