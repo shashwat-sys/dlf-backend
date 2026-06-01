@@ -1,0 +1,325 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>DLF Admin — Jan Nyaya Abhiyan</title>
+<style>
+:root{
+  --green:#1a5c2e;--green2:#2d8653;--beige:#f5f0e8;--border:#d6cfc0;
+  --text:#1a1a1a;--muted:#666;--red:#c0392b;--amber:#e67e22;
+  --card:#fff;--shadow:0 2px 12px rgba(0,0,0,.1);
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:var(--beige);color:var(--text);min-height:100vh}
+
+/* ── Login ── */
+#loginPage{display:flex;align-items:center;justify-content:center;min-height:100vh;background:var(--beige)}
+.login-card{background:var(--card);border-radius:16px;box-shadow:var(--shadow);padding:48px 40px;width:360px;max-width:95vw}
+.login-card .org{font-size:12px;color:var(--muted);text-align:center;margin-bottom:8px;text-transform:uppercase;letter-spacing:.06em}
+.login-card h1{font-size:22px;color:var(--green);text-align:center;margin-bottom:4px}
+.login-card .sub{font-size:13px;color:var(--muted);text-align:center;margin-bottom:32px}
+.field label{font-size:13px;font-weight:600;color:var(--text);display:block;margin-bottom:6px}
+.field input{width:100%;padding:10px 14px;border:1.5px solid var(--border);border-radius:8px;font-size:15px;outline:none;transition:.15s}
+.field input:focus{border-color:var(--green)}
+.field{margin-bottom:18px}
+.btn{display:block;width:100%;padding:12px;background:var(--green);color:#fff;border:none;border-radius:8px;font-size:15px;font-weight:600;cursor:pointer;transition:.15s}
+.btn:hover{background:var(--green2)}
+.login-error{color:var(--red);font-size:13px;text-align:center;margin-top:12px;display:none}
+
+/* ── Dashboard ── */
+#dashPage{display:none;min-height:100vh}
+header{background:var(--green);color:#fff;padding:0 24px;display:flex;align-items:center;height:56px;position:sticky;top:0;z-index:100}
+header .logo{font-weight:700;font-size:17px}
+header .sub-h{font-size:13px;opacity:.75;margin-left:8px}
+header nav{margin-left:auto;display:flex;gap:12px;align-items:center}
+header button{background:rgba(255,255,255,.15);color:#fff;border:none;padding:7px 14px;border-radius:6px;font-size:13px;cursor:pointer;transition:.15s}
+header button:hover{background:rgba(255,255,255,.25)}
+header .btn-export{background:rgba(255,255,255,.2)}
+.main{padding:24px;max-width:1400px;margin:0 auto}
+
+/* Stats */
+.stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:16px;margin-bottom:24px}
+.stat-card{background:var(--card);border-radius:12px;padding:20px;box-shadow:var(--shadow)}
+.stat-card .val{font-size:32px;font-weight:700;color:var(--green)}
+.stat-card .lbl{font-size:13px;color:var(--muted);margin-top:4px}
+
+/* Controls */
+.controls{display:flex;gap:12px;margin-bottom:16px;flex-wrap:wrap;align-items:center}
+.search-box{flex:1;min-width:220px;padding:9px 14px;border:1.5px solid var(--border);border-radius:8px;font-size:14px;outline:none}
+.search-box:focus{border-color:var(--green)}
+.export-btns{display:flex;gap:8px}
+.btn-xl{padding:9px 18px;border:none;border-radius:8px;font-size:13px;font-weight:600;cursor:pointer;transition:.15s}
+.btn-excel{background:#217346;color:#fff}.btn-excel:hover{background:#1a5c38}
+.btn-pdf{background:#c0392b;color:#fff}.btn-pdf:hover{background:#a93226}
+
+/* Table */
+.table-wrap{background:var(--card);border-radius:12px;box-shadow:var(--shadow);overflow:hidden}
+table{width:100%;border-collapse:collapse;font-size:14px}
+thead{background:var(--green);color:#fff}
+th{padding:12px 14px;text-align:left;font-weight:600;font-size:13px;white-space:nowrap}
+td{padding:11px 14px;border-bottom:1px solid var(--border);vertical-align:middle}
+tr:last-child td{border-bottom:none}
+tr:hover td{background:#f9f6f0}
+.code-badge{font-family:monospace;background:#e8f5e9;color:var(--green);padding:3px 8px;border-radius:5px;font-size:13px;font-weight:700}
+.score-badge{font-weight:700;padding:3px 10px;border-radius:20px;font-size:13px}
+.score-hi{background:#d4edda;color:#155724}
+.score-mid{background:#fff3cd;color:#856404}
+.score-lo{background:#f8d7da;color:#721c24}
+.btn-view{padding:5px 14px;background:var(--green);color:#fff;border:none;border-radius:6px;font-size:12px;cursor:pointer;font-weight:600;transition:.15s}
+.btn-view:hover{background:var(--green2)}
+.empty-row td{text-align:center;padding:48px;color:var(--muted)}
+
+/* ── Modal ── */
+dialog{padding:0;border:none;border-radius:16px;box-shadow:0 8px 40px rgba(0,0,0,.25);max-width:760px;width:95vw;max-height:90vh}
+dialog::backdrop{background:rgba(0,0,0,.5)}
+.modal-header{background:var(--green);color:#fff;padding:20px 24px;display:flex;align-items:flex-start;gap:12px}
+.modal-header .title{font-size:18px;font-weight:700;flex:1}
+.modal-header .meta{font-size:12px;opacity:.8;margin-top:4px}
+.modal-close{background:rgba(255,255,255,.2);border:none;color:#fff;width:32px;height:32px;border-radius:50%;font-size:18px;cursor:pointer;flex-shrink:0}
+.modal-body{padding:24px;overflow-y:auto;max-height:calc(90vh - 100px)}
+.section-title{font-size:14px;font-weight:700;color:var(--green);text-transform:uppercase;letter-spacing:.05em;margin:20px 0 12px;padding-bottom:6px;border-bottom:2px solid var(--green)}
+.section-title:first-child{margin-top:0}
+.score-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.score-row{display:flex;align-items:center;gap:8px;font-size:13px}
+.score-label{flex:1;color:var(--muted)}
+.score-bar-wrap{flex:2;background:#e8e0d0;border-radius:4px;height:8px;overflow:hidden}
+.score-bar{height:8px;background:var(--green);border-radius:4px;transition:.3s}
+.score-num{width:28px;font-weight:700;font-size:13px;text-align:right}
+.kv-grid{display:grid;grid-template-columns:1fr;gap:10px}
+.kv{background:#faf8f4;border-radius:8px;padding:12px}
+.kv .k{font-size:12px;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:.04em;margin-bottom:4px}
+.kv .v{font-size:14px;color:var(--text);white-space:pre-wrap}
+.chips{display:flex;flex-wrap:wrap;gap:6px;margin-top:4px}
+.chip{background:#e8f5e9;color:var(--green);border-radius:20px;padding:3px 10px;font-size:12px;font-weight:600}
+.fin-row{display:flex;gap:12px;flex-wrap:wrap}
+.fin-box{background:#faf8f4;border-radius:8px;padding:12px 16px;min-width:140px}
+.fin-box .fk{font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.04em}
+.fin-box .fv{font-size:20px;font-weight:700;color:var(--green)}
+
+/* loading spinner */
+.spinner{display:inline-block;width:20px;height:20px;border:3px solid rgba(255,255,255,.3);border-top-color:#fff;border-radius:50%;animation:spin .6s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+
+@media(max-width:600px){
+  .stats{grid-template-columns:1fr 1fr}
+  .score-grid{grid-template-columns:1fr}
+  header .sub-h{display:none}
+  .main{padding:12px}
+}
+</style>
+</head>
+<body>
+
+<div id="loginPage">
+  <div class="login-card">
+    <div class="org">Jan Nyaya Abhiyan · Janman People's Foundation</div>
+    <h1>DLF Admin</h1>
+    <div class="sub">District Legal Fellowship · Annual Review 2026</div>
+    <form id="loginForm">
+      <div class="field">
+        <label for="uname">Username</label>
+        <input id="uname" type="text" autocomplete="username" placeholder="admin" required>
+      </div>
+      <div class="field">
+        <label for="upass">Password</label>
+        <input id="upass" type="password" autocomplete="current-password" placeholder="••••••••" required>
+      </div>
+      <button type="submit" class="btn" id="loginBtn">Sign in</button>
+      <div class="login-error" id="loginErr">Invalid username or password</div>
+    </form>
+  </div>
+</div>
+
+<div id="dashPage">
+  <header>
+    <span class="logo">DLF Admin</span>
+    <span class="sub-h">Jan Nyaya Abhiyan</span>
+    <nav>
+      <button class="btn-export btn-excel" onclick="exportFile('excel')">↓ Excel</button>
+      <button class="btn-export btn-pdf"   onclick="exportFile('pdf')">↓ PDF</button>
+      <button onclick="logout()">Sign out</button>
+    </nav>
+  </header>
+  <div class="main">
+    <div class="stats" id="statsRow">
+      <div class="stat-card"><div class="val" id="stTotal">—</div><div class="lbl">Total submissions</div></div>
+      <div class="stat-card"><div class="val" id="stFellows">—</div><div class="lbl">Distinct fellows</div></div>
+      <div class="stat-card"><div class="val" id="stDistricts">—</div><div class="lbl">Districts covered</div></div>
+      <div class="stat-card"><div class="val" id="stAvg">—</div><div class="lbl">Avg self-score</div></div>
+    </div>
+    <div class="controls">
+      <input class="search-box" id="searchBox" type="search" placeholder="Search by fellow, district, code…" oninput="renderTable()">
+    </div>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>Code</th><th>Date</th><th>Fellow</th><th>Role</th><th>District</th><th>Avg Score</th><th></th></tr></thead>
+        <tbody id="tableBody"></tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<dialog id="entryModal">
+  <div class="modal-header">
+    <div style="flex:1">
+      <div class="title" id="mTitle">—</div>
+      <div class="meta" id="mMeta">—</div>
+    </div>
+    <button class="modal-close" onclick="document.getElementById('entryModal').close()">✕</button>
+  </div>
+  <div class="modal-body" id="mBody"></div>
+</dialog>
+
+<script>
+const API = window.location.origin;
+let TOKEN = localStorage.getItem('dlf_admin_token') || '';
+let ALL_ENTRIES = [];
+
+window.onload = async () => {
+  if (TOKEN) { show('dashPage'); await loadEntries(); }
+  else { show('loginPage'); }
+};
+
+function show(id) {
+  document.getElementById('loginPage').style.display = id === 'loginPage' ? 'flex' : 'none';
+  document.getElementById('dashPage').style.display  = id === 'dashPage'  ? 'block' : 'none';
+}
+
+document.getElementById('loginForm').onsubmit = async e => {
+  e.preventDefault();
+  const btn = document.getElementById('loginBtn');
+  const err = document.getElementById('loginErr');
+  err.style.display = 'none';
+  btn.innerHTML = '<span class="spinner"><\/span>';
+  btn.disabled = true;
+  try {
+    const r = await fetch(API + '/api/admin/login', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ username: document.getElementById('uname').value, password: document.getElementById('upass').value })
+    });
+    const j = await r.json();
+    if (!r.ok || !j.token) throw new Error(j.error || 'Login failed');
+    TOKEN = j.token;
+    localStorage.setItem('dlf_admin_token', TOKEN);
+    show('dashPage');
+    await loadEntries();
+  } catch (ex) {
+    err.textContent = ex.message;
+    err.style.display = 'block';
+  } finally {
+    btn.textContent = 'Sign in';
+    btn.disabled = false;
+  }
+};
+
+function logout() { TOKEN = ''; localStorage.removeItem('dlf_admin_token'); show('loginPage'); }
+
+async function loadEntries() {
+  try {
+    const r = await fetch(API + '/api/admin/entries', { headers: { Authorization: 'Bearer ' + TOKEN } });
+    if (r.status === 401) { logout(); return; }
+    const j = await r.json();
+    ALL_ENTRIES = j.entries || [];
+    updateStats();
+    renderTable();
+  } catch (e) {
+    ALL_ENTRIES = [];
+    document.getElementById('tableBody').innerHTML = '<tr class="empty-row"><td colspan="7">⚠ Could not load entries — ' + e.message + '<\/td><\/tr>';
+  }
+}
+
+function updateStats() {
+  const e = ALL_ENTRIES;
+  document.getElementById('stTotal').textContent = e.length;
+  document.getElementById('stFellows').textContent = new Set(e.map(x => x.fellow)).size;
+  document.getElementById('stDistricts').textContent = new Set(e.map(x => x.district)).size;
+  let totalAvg = 0, count = 0;
+  e.forEach(entry => {
+    const scores = Object.values(entry.data?.scores || {}).map(Number);
+    if (scores.length) { totalAvg += scores.reduce((a,b)=>a+b,0)/scores.length; count++; }
+  });
+  document.getElementById('stAvg').textContent = count ? (totalAvg/count).toFixed(1) : '—';
+}
+
+function renderTable() {
+  const q = document.getElementById('searchBox').value.trim().toLowerCase();
+  const filtered = q ? ALL_ENTRIES.filter(e =>
+    (e.fellow||'').toLowerCase().includes(q)||(e.district||'').toLowerCase().includes(q)||
+    (e.code||'').toLowerCase().includes(q)||(e.role||'').toLowerCase().includes(q)) : ALL_ENTRIES;
+  const tbody = document.getElementById('tableBody');
+  if (!filtered.length) { tbody.innerHTML = '<tr class="empty-row"><td colspan="7">No entries found<\/td><\/tr>'; return; }
+  tbody.innerHTML = filtered.map((e, idx) => {
+    const scores = Object.values(e.data?.scores || {}).map(Number);
+    const avg = scores.length ? (scores.reduce((a,b)=>a+b,0)/scores.length).toFixed(1) : '—';
+    const cls = avg === '—' ? '' : Number(avg) >= 8 ? 'score-hi' : Number(avg) >= 5 ? 'score-mid' : 'score-lo';
+    const date = e.timestamp ? new Date(e.timestamp).toLocaleDateString('en-IN',{day:'2-digit',month:'short',year:'numeric'}) : '—';
+    return `<tr><td><span class="code-badge">${esc(e.code)}<\/span><\/td><td>${date}<\/td><td><strong>${esc(e.fellow||'—')}<\/strong><\/td><td>${esc(e.role||'—')}<\/td><td>${esc(e.district||'—')}<\/td><td><span class="score-badge ${cls}">${avg}<\/span><\/td><td><button class="btn-view" onclick="viewEntry(${idx})">View<\/button><\/td><\/tr>`;
+  }).join('');
+  tbody._filtered = filtered;
+}
+
+function viewEntry(idx) {
+  const tbody = document.getElementById('tableBody');
+  const filtered = tbody._filtered || ALL_ENTRIES;
+  const e = filtered[idx]; if (!e) return;
+  const d = e.data || {};
+  document.getElementById('mTitle').textContent = d.who || 'Unknown Fellow';
+  document.getElementById('mMeta').textContent = `Code: ${e.code}  ·  ${d.role||''}  ·  ${d.dist||''}  ·  Period: ${d.period||'—'}  ·  ` + (e.timestamp ? new Date(e.timestamp).toLocaleString('en-IN') : '');
+  let html = '';
+  const scores = d.scores || {};
+  const scoreEntries = Object.entries(scores);
+  if (scoreEntries.length) {
+    html += `<div class="section-title">Section A — Self-Scores<\/div><div class="score-grid">`;
+    scoreEntries.forEach(([k, v]) => {
+      const n = Math.min(10, Math.max(0, Number(v)));
+      html += `<div class="score-row"><span class="score-label">${esc(k)}<\/span><div class="score-bar-wrap"><div class="score-bar" style="width:${n*10}%"><\/div><\/div><span class="score-num">${v}<\/span><\/div>`;
+    });
+    const avg = (scoreEntries.reduce((a,[,v])=>a+Number(v),0)/scoreEntries.length).toFixed(1);
+    html += `<\/div><div style="margin-top:10px;font-size:13px;font-weight:600;color:var(--green)">Average: ${avg} / 10<\/div>`;
+  }
+  const dimLabels = {experience:'Experience',challenges:'Challenges & How Overcome',learnings:'Key Learnings',impact:'Notable Impact',teamwork:'Teamwork & Conduct'};
+  const dims = d.dims || {};
+  if (Object.values(dims).some(Boolean)) {
+    html += `<div class="section-title">Section B — Reflections<\/div><div class="kv-grid">`;
+    Object.entries(dims).forEach(([k, v]) => { if (v) html += `<div class="kv"><div class="k">${esc(dimLabels[k]||k)}<\/div><div class="v">${esc(v)}<\/div><\/div>`; });
+    html += `<\/div>`;
+  }
+  const cFields = [['report','Reporting bottleneck'],['strategy','Case strategy'],['media','Media screenings — outcomes'],['neto','Networking — organisations'],['netg','Networking — officials/govt'],['comm','Community collaboration']];
+  if (cFields.some(([k]) => d[k])) {
+    html += `<div class="section-title">Section C — Working the Fellowship<\/div><div class="kv-grid">`;
+    cFields.forEach(([k, label]) => { if (d[k]) html += `<div class="kv"><div class="k">${esc(label)}<\/div><div class="v">${esc(d[k])}<\/div><\/div>`; });
+    html += `<\/div>`;
+  }
+  if (Array.isArray(d.stake) && d.stake.length) html += `<div class="section-title">Stakeholders Engaged<\/div><div class="chips">${d.stake.map(s=>`<span class="chip">${esc(s)}<\/span>`).join('')}<\/div>`;
+  if (d.adv || d.claim || d.pend) {
+    html += `<div class="section-title">Section D — Expenditure<\/div><div class="fin-row">`;
+    if (d.adv)   html += `<div class="fin-box"><div class="fk">Advance taken<\/div><div class="fv">₹${esc(d.adv)}<\/div><\/div>`;
+    if (d.claim) html += `<div class="fin-box"><div class="fk">Total claimed<\/div><div class="fv">₹${esc(d.claim)}<\/div><\/div>`;
+    if (d.pend)  html += `<div class="fin-box"><div class="fk">Bills pending?<\/div><div class="fv" style="font-size:16px">${esc(d.pend)}<\/div><\/div>`;
+    html += `<\/div>`;
+  }
+  if (d.sugg) html += `<div class="section-title">Suggestions<\/div><div class="kv"><div class="k">What would make the fellowship work better<\/div><div class="v">${esc(d.sugg)}<\/div><\/div>`;
+  document.getElementById('mBody').innerHTML = html;
+  document.getElementById('entryModal').showModal();
+}
+
+async function exportFile(type) {
+  try {
+    const r = await fetch(`${API}/api/admin/export/${type}`, { headers: { Authorization: 'Bearer ' + TOKEN } });
+    if (r.status === 401) { logout(); return; }
+    if (!r.ok) { alert('Export failed: ' + r.status); return; }
+    const blob = await r.blob();
+    const a = document.createElement('a');
+    a.href = URL.createObjectURL(blob);
+    a.download = type === 'excel' ? 'DLF_Submissions.xlsx' : 'DLF_Submissions.pdf';
+    a.click();
+    URL.revokeObjectURL(a.href);
+  } catch (e) { alert('Export error: ' + e.message); }
+}
+
+function esc(s) { return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
+</script>
+</body>
+</html>
